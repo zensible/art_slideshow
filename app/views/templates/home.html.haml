@@ -1,0 +1,45 @@
+!!!
+#content{"ng-controller" => "HomeCtrl" }
+  #loading{ "ng-if" => "!loaded" }
+    .uil-default-css
+      = render :partial => 'loading'
+
+  %div{ :style => "width: 100%; height: 100%; position: fixed", "ng-click" => "show_ui_go()", "ng-mobile-click" => "show_ui_go()"}
+    %img#image{ "ng-if" => "loaded" }
+
+  #ui-wait{ "style" => "display: none" }
+    %div{ "ng-repeat" => "time in wait_times"}
+      %span.selected{ "ng-if" => "time == wait_time"}
+        {{time.caption}}
+      %span.hand{ "ng-if" => "time != wait_time", "ng-click" => "select_time(time)" }
+        {{time.caption}}
+
+  #ui-category{ "style" => "display: none" }
+    %table
+      %tr
+        %td{ "valign" => "top" }
+          %div{ "ng-repeat" => "category in categories"}
+            %span.selected{ "ng-if" => "current_category == category"}
+              {{category}}
+            %span.hand{ "ng-if" => "current_category != category", "ng-click" => "select_category(category)" }
+              {{category}}
+        %td{ "valign" => "top" }
+          %div{ "ng-repeat" => "era in eras"}
+            %span.selected{ "ng-if" => "current_era == era"}
+              {{era.caption}}
+            %span.hand{ "ng-if" => "current_era != era", "ng-click" => "select_era(era)" }
+              {{era.caption}}
+
+  %div#info{ "ng-if" => "loaded" }
+    %table
+      %tr
+        %td#artist.ellipsis
+          {{img_current.artist_display_name || "Artist Unknown"}}
+          {{img_current.artist_display_bio}}
+        %td#title.ellipsis
+          %a{ :target => "_NEW", "ng-href" => "{{img_current.link_resource}}" }<
+            {{img_current.title || "Untitled"}}
+          %span{ "ng-if" => "img_current.object_end_date" }
+            ({{img_current.object_end_date}})
+        %td#medium.ellipsis
+          {{img_current.medium}}

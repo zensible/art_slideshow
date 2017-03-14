@@ -1,0 +1,21 @@
+!!!
+%html{"ng-app" => "artSlideshowApp"}
+  %head
+    %title Art Slideshow
+    = csrf_meta_tags
+    = stylesheet_link_tag    '/bootstrap/css/bootstrap.min.css', media: 'all'
+    = stylesheet_link_tag    'application', media: 'all'
+    = action_cable_meta_tag
+    %link{:href => "/favicon.png", :rel => "icon", :type => "image/png"}/
+    %meta{:content => "width=device-width, minimum-scale=0.1", :name => "viewport"}/
+
+  %body{"ng-controller" => "GlobalCtrl", "ng-class" => "{{ currentPage }}" }
+    = yield
+    #view{ "ng-view" => "" }
+
+  :javascript
+    window.env = "#{Rails.env}";
+    window.categories = #{@categories}
+
+  = javascript_include_tag 'application'
+  = javascript_include_tag '/bootstrap/js/bootstrap.js'

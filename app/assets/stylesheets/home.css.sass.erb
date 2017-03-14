@@ -1,0 +1,89 @@
+
+
+html, body, #view, #content
+  height: 100%
+
+  .hand
+    cursor: pointer
+    cursor: hand
+
+  .ellipsis
+    white-space: nowrap
+    overflow: hidden
+    text-overflow: ellipsis  
+
+  .play-button, .pause-button
+    width: 16px
+    height: 16px
+
+  .selected
+    color: #f4dc42
+
+  a
+    color: #FFFFFF
+
+body
+  margin: 0px
+  background: #0e0e0e
+  color: #FFFFFF
+
+  #image
+    position: fixed
+    top: 0
+    bottom: 0
+    left: 0
+    right: 0
+    max-width: 100%
+    max-height: 100%
+    margin: auto
+    overflow: auto
+
+  #ui-wait, #ui-category
+    padding: 8px
+    background: rgba(0, 0, 0, 0.6)
+    position: fixed
+    z-index: 1000
+
+  #ui-wait
+    height: 90%
+    left: 0px
+    div
+      height: 10%
+
+  #ui-category
+    height: 90%
+    right: 0px
+    overflow-y: auto
+    td
+      padding: 8px
+
+  #loading
+    width: 160px
+    height: 160px
+    position: absolute
+    top: 0
+    bottom: 0
+    left: 0
+    right: 0
+    margin: auto
+    .uil-default-css
+      transform: scale(1.0)
+
+  #info
+    background: rgba(0, 0, 0, 0.6)
+    position: fixed
+    bottom: 0px
+    table
+      table-layout: fixed
+      width: 100%
+      td
+        padding-left: 8px
+        padding-right: 8px
+      td#artist
+        width: 30%
+      td#title
+        width: 60%
+        text-align: center
+      td#medium
+        width: 30%
+        text-align: right
