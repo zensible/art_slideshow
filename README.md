@@ -3,7 +3,9 @@
 
 ## About
 
-This app displays a slideshow of high quality artworks from the Metropolitan Museum's [public domain collection](http://www.metmuseum.org/about-the-met/policies-and-documents/image-resources).
+This app displays a randomized slideshow of high quality artworks from the Metropolitan Museum's [public domain collection](http://www.metmuseum.org/about-the-met/policies-and-documents/image-resources).
+
+The included database has 201,000 artworks, separated by department and era.
 
 ## Installation
 
@@ -38,8 +40,15 @@ rvm install 2.3.3
 
 ### 5. Create/populate database
 
+#### 5.1: create db
+
 rake db:create
 rake db:migrate
+
+#### 5.2: Import artwork database
+
+Unzip lib/tasks/MetObjects.csv.zip
+
 rake csv:import
 
 ### 6. Start server
