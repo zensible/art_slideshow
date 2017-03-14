@@ -13,22 +13,31 @@ This app requires you to run a Rails server.
 
 ### 1. Check out the code
 
-git clone ---
+```
+https://github.com/zensible/art_slideshow.git
+cd art_slideshow
+```
 
 ### 2. Install mysql
 
+```
 Mac: brew install mysql
 Ubuntu: sudo apt-get install mysql-server
+```
 
 ### 3. Configure app
 
+```
 cp config/database.yml.example config/database.yml
+```
 
 Edit config/database.yml and set your mysql host/username/password
 
 ### 4. Install gems
 
+```
 bundle install
+```
 
 If you get a 'wrong ruby version' error, install rvm:
 
@@ -36,32 +45,42 @@ https://rvm.io/rvm/install
 
 ...and ruby 2.3.3:
 
+```
 rvm install 2.3.3
+```
 
 ### 5. Create/populate database
 
 #### 5.1: create db
 
+```
 rake db:create
 rake db:migrate
+```
 
 #### 5.2: Import artwork database
 
 Unzip lib/tasks/MetObjects.csv.zip
 
+```
 rake csv:import
+```
 
 ### 6. Start server
 
+```
 rails s -b 0.0.0.0 -p 80
+```
 
 This tells the server to serve to all IP addresses on port 80.
 
 You should see a message like this:
 
+```
 Success! You may access the slideshow at this address on the local network:
 
 http://192.168.0.103:5050
+```
 
 
 ### 7. Optional: make server available over the internet
@@ -80,7 +99,7 @@ You should then be able to access your art slideshow from any internet-connected
 
 # Other stuff:
 
-If you're trying to create a digital picture frame from an Android device, the author recommends this combo of apps:
+If you're trying to create a digital picture frame out of an Android device, the author recommends this combo of apps:
 
 https://play.google.com/store/apps/details?id=tk.klurige.fullscreenbrowser&hl=en
 
