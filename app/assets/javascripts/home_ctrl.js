@@ -129,6 +129,7 @@ artSlideshowApp.controller('HomeCtrl', function ($scope, $routeParams, $route, 
 
   function init() {
     getNext(true)
+
   }
 
 

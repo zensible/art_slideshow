@@ -131,7 +131,7 @@ TRUNCATE image_entries;
       end
       begin
         hsh[:object_name] ||= ""
-        if is_public_domain == 1  && (!hsh[:title] || (hsh[:title] && !hsh[:title].match(/cigarette/)))  # There are 5800 cigarette art prints that are ahhh kind of lame. This filters them out
+        if is_public_domain == 1  && (!hsh[:title] || (hsh[:title] && !hsh[:title].match(/cigarette|Cigarette/)))  # There are about 15000 cigarette art prints that are ahhh kind of lame. It's better to filter them out, trust me.
           puts "create"
           ImageEntry.create(hsh)
         end
