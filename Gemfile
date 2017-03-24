@@ -16,6 +16,8 @@ gem 'coffee-rails', '~> 4.2'
 gem 'haml'
 gem 'fastimage_resize' # May need to: brew install gd
 
+gem 'nokogiri'
+
 gem 'fastimage'
 
 gem 'jquery-rails'

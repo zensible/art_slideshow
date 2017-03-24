@@ -44,6 +44,9 @@ class CreateImageEntries < ActiveRecord::Migration[5.0]
       t.string :link_resource
       t.string :metadata_date
       t.string :repository
+      t.integer :downloaded, :default => 0
+      t.text :met_html, :limit => 16.megabytes - 1
+      t.string :md5
     end
 
 

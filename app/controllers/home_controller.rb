@@ -65,7 +65,7 @@ class HomeController < ApplicationController
 
       puts "== Met link: #{link}"
       html = `curl '#{link}'`
-      arr = html.match(/<a href="\{\{selectedOrDefaultDownload\(&#039;(.+)&#039;\)}}"/)
+      #arr = html.match(/<a href="\{\{selectedOrDefaultDownload\(&#039;(.+)&#039;\)}}"/)
 
       arr = html.match(/http:\/\/images\.metmuseum\.org\/CRDImages\/(\w+)\/original\/(.+)\.(jpg|JPG|jpeg|JPEG|Jpg|Jpeg)/)
 
