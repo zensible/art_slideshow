@@ -115,7 +115,7 @@ TRUNCATE image_entries;
       end
       #abort "done" if num == 10000
     end
-    puts "DONE!"
+    abort "DONE!"
   end
 
   # Step 2: populate url_jpeg and met_html
@@ -176,7 +176,7 @@ TRUNCATE image_entries;
         puts "sleeping #{30}"
         #sleep 30
       else # if
-        raise "Done!"
+        abort "Done!"
       end
     end # while
   end # task
@@ -184,8 +184,18 @@ TRUNCATE image_entries;
   # Step 3: download and process images
   task :download => :environment do
     sleep_time = 0.1
+
+    offsetSta = ENV['OFFSETSTA'] || "0"
+    offsetEnd = ENV['OFFSETEND'] || "100000000"
+
+    miscreants = [ 42137, 49978 ] # The jpegs for these entries are corrupt, skip them entirely
+    miscreants.each do |id|
+      sql = "DELETE FROM image_entries WHERE object_id = #{id}"
+      ActiveRecord::Base.connection.execute(sql)
+    end
+
     while true
-      sql = "SELECT * FROM image_entries WHERE url_jpeg IS NOT NULL AND md5 IS NULL ORDER BY id LIMIT 100"
+      sql = "SELECT * FROM image_entries WHERE id > #{offsetSta} AND id < #{offsetEnd} AND url_jpeg IS NOT NULL AND md5 IS NULL ORDER BY id LIMIT 100"
       entries = []
       ImageEntry.uncached do
         entries = ImageEntry.find_by_sql(sql)
@@ -199,7 +209,7 @@ TRUNCATE image_entries;
             path_in = "./public/downloaded/archive/#{fn_in}"
             puts "== path: #{path_in}"
             if !File.exist? path_in
-              cmd = "curl -o #{path_in} #{url}"
+              cmd = "curl -o '#{path_in}' '#{url}'"
               `#{cmd}`
             end
 
@@ -235,7 +245,7 @@ TRUNCATE image_entries;
 
         end
       else # if
-        raise "Done!"
+        abort "Done!"
       end
     end # while
   end # task
@@ -251,7 +261,7 @@ TRUNCATE image_entries;
       end
       if entries.count > 0
       else # if
-        raise "Done!"
+        abort "Done!"
       end
     end # while
   end # task
