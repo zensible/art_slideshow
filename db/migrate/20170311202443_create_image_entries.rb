@@ -47,6 +47,10 @@ class CreateImageEntries < ActiveRecord::Migration[5.0]
       t.integer :downloaded, :default => 0
       t.text :met_html, :limit => 16.megabytes - 1
       t.string :md5
+      t.integer :width
+      t.integer :height
+      t.integer :bytes
+      t.integer :host_me, :default => 0
     end
 
 
@@ -54,6 +58,9 @@ class CreateImageEntries < ActiveRecord::Migration[5.0]
     ActiveRecord::Base.connection.execute(sql)
 
     sql = "CREATE INDEX object_end_date_index ON image_entries (object_end_date)"
+    ActiveRecord::Base.connection.execute(sql)
+
+    sql = "CREATE INDEX md5_index ON image_entries (md5)"
     ActiveRecord::Base.connection.execute(sql)
   end
 end
