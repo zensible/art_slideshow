@@ -21,7 +21,9 @@ gem 'ngannotate-rails'
 
 gem 'nokogiri'
 
-gem 'fastimage'
+group :development do
+  gem 'fastimage_resize' # May need to: brew install gd
+end
 
 gem 'jquery-rails'
 
