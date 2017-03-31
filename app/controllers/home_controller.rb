@@ -35,79 +35,53 @@ class HomeController < ApplicationController
 
     tries = 10
 
-    begin
+    #begin
 
       Rails.logger.info Time.now.to_i.to_s
 
+      key = "ids"
+
       cat = ""
       if params[:category] && params[:category] != 'ALL'
+        key += "::" + params[:category]
         cat = " AND department = '#{params[:category]}'"
       end
 
       era = ""
       if params[:era] && params[:era] != 'ALL'
+        key += "::" + params[:era]
         arr = params[:era].split("_")
         begi = arr[0]
         en = arr[1]
         era = " AND object_end_date >= #{begi} AND object_end_date <= #{en} "
       end
 
-      sql = "SELECT * FROM image_entries WHERE true = true #{cat} #{era} ORDER BY rand() LIMIT 1"
+      ids = $redis.get(key)
+      if ids.blank?
+        ids = []
+        sql = "SELECT id FROM image_entries WHERE host_me=1 #{cat} #{era} and full_description is not null"
+        results = ActiveRecord::Base.connection.execute(sql)
+        results.each do |row|
+          ids.push(row[0])
+        end
+        $redis.set(key, JSON.dump(ids))
+      else
+        ids = JSON.load(ids)
+      end
+
+      id = ids.sample
+      render :json => { success: false }, status: 200 and return if id.blank?
+
+      sql = "SELECT * FROM image_entries WHERE id = #{id}"
       entry = nil
       ImageEntry.uncached do
         entry = ImageEntry.find_by_sql(sql).first
       end
-      render :json => {} and return if entry.nil?
+      render :json => entry.attributes and return
 
-      link = entry.link_resource
-
-      Rails.logger.info (Time.now.to_i - sta).to_s
-
-      puts "== Met link: #{link}"
-      html = `curl '#{link}'`
-      #arr = html.match(/<a href="\{\{selectedOrDefaultDownload\(&#039;(.+)&#039;\)}}"/)
-
-      arr = html.match(/http:\/\/images\.metmuseum\.org\/CRDImages\/(\w+)\/original\/(.+)\.(jpg|JPG|jpeg|JPEG|Jpg|Jpeg)/)
-
-      Rails.logger.info (Time.now.to_i - sta).to_s
-      if arr
-        abbrev = arr[1]
-        fn = arr[2]
-        url = "http://images.metmuseum.org/CRDImages/#{abbrev}/original/#{fn}.jpg"
-        puts "== Url: #{url}"
-
-        fn = "#{entry.id}-#{@id}.jpg"
-        path = "./public/downloaded/#{fn}"
-        puts "== path: #{path}"
-
-        cmd = "curl -o #{path} #{url}"
-        `#{cmd}`
-        FastImage.resize(path, 2000, 0, :outfile => path)
-
-        # Clean up images we've already seen
-        Dir.glob("./public/downloaded/*.jpg").each do |itm|
-          if !itm.match(/\/#{entry.id}-#{@id}\.jpg/) && itm.match(/-#{@id}/)
-            File.delete(itm)
-          end
-        end
-
-        Rails.logger.info (Time.now.to_i - sta).to_s
-        render :json => entry.attributes and return
-      else
-        Rails.logger.error "Couldn't extract the URL!"
-        raise "Couldn't extract the URL!"
-      end
-    rescue Exception => ex
-      tries -= 1
-      if tries > 0
-        Rails.logger.error ex.message
-        retry
-      else
-        Rails.logger.error "Fatal error!!!!! #{ex.message}"
-        Rails.logger.error ex.message
-        render :json => { success: false }, status: 500 and return
-      end
-    end
+    #rescue Exception => ex
+    #  render :json => { success: false }, status: 500 and return
+    #end
 
   end
 

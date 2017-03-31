@@ -337,6 +337,36 @@ TRUNCATE image_entries;
     abort "Done"
   end # task
 
+  task :process_html => :environment do
+    sql = "SELECT id, met_html, full_description FROM image_entries"
+    entries = []
+    ImageEntry.uncached do
+      entries = ImageEntry.find_by_sql(sql)
+    end
+    entries.each do |entry|
+      html = entry.met_html
+
+      doc = Nokogiri::HTML html
+      node = doc.css(".collection-details__tombstone")
+      rows = node.css(".collection-details__tombstone--row")
+      description = {
+        details: [],
+        label: ""
+      }
+      rows.each do |row|
+        dt = row.css("dt")
+        dd = row.css("dd")
+        description[:details].push({
+          label: dt.text,
+          value: dd.text
+        })
+      end
+      description[:label] = doc.css(".collection-details__label").text.squish
+      entry.full_description = JSON.dump(description)
+      entry.save
+    end
+  end
+
   # Step 4: upload to s3
   # Note to self: for creds search scratch for: s3 upload
   task :upload_to_s3 => :environment do

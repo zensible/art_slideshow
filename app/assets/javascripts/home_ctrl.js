@@ -1,5 +1,5 @@
 
-artSlideshowApp.controller('HomeCtrl', function ($scope, $routeParams, $route, $rootScope) {
+artSlideshowApp.controller('HomeCtrl', function ($scope, $routeParams, $route, $rootScope, $http) {
 
   // For use in debugging w/ the chrome console
   window.scope = $scope;
@@ -47,13 +47,26 @@ artSlideshowApp.controller('HomeCtrl', function ($scope, $routeParams, $route, 
     if (parts.length == 2) return parts.pop().split(";").shift();
   }
 
-  var ui_timeout = null;
-  $scope.show_ui_go = function() {
-    $('#ui-wait, #ui-category').fadeIn(250)
-    clearTimeout(ui_timeout)
-    ui_timeout = setTimeout(function() {
+  var ui_showing = false;
+  $scope.toggle_ui = function() {
+    //$('#description').hide()
+    if (ui_showing) {
       $('#ui-wait, #ui-category').fadeOut(1000)
-    }, 10*1000)
+    } else {
+      $('#ui-wait, #ui-category').fadeIn(250)
+    }
+    ui_showing = !ui_showing
+  }
+
+  var info_showing = false;
+  $scope.toggle_info = function() {
+    //$('#ui-wait, #ui-category').hide()
+    if (info_showing) {
+      $('#description').fadeOut(100)
+    } else {
+      $('#description').fadeIn(250)
+    }
+    info_showing = !info_showing
   }
 
   $scope.select_time = function(time) {
@@ -90,6 +103,7 @@ artSlideshowApp.controller('HomeCtrl', function ($scope, $routeParams, $route, 
   $scope.img_current = {}
   var img_next = {}
   var timeout_next = null;
+  $scope.entry = {}
 
   function getNext(initial) {
     $.ajax({
@@ -97,9 +111,20 @@ artSlideshowApp.controller('HomeCtrl', function ($scope, $routeParams, $route, 
       url: "/random_image?category=" + $scope.current_category + "&era=" + $scope.current_era.val,
       success: function(response) {
         if (response['id']) {
+
           img_next = response;
-          timeout_next = setTimeout(function() {
+
+          // Download image so it will load from cache when displayed
+          var objImage = new Image();
+          objImage.src = response['url'];
+
+          function show_next() {
             clearTimeout(timeout_next)
+
+            if (!window.tab_is_active) {
+              timeout_next = setTimeout(show_next, (initial ? 0 : $scope.wait_time.val * 1000))
+              return;
+            }
 
             if (!$scope.loaded) {
               $scope.loaded = true;
@@ -107,13 +132,15 @@ artSlideshowApp.controller('HomeCtrl', function ($scope, $routeParams, $route, 
             }
 
             var id = img_next['id']
-            $('#image').attr('src', "/downloaded/" + id + "-" + getCookie('browser-id') + ".jpg")
+            $('#image').attr('src', response['url'])
 
             $scope.img_current = img_next
             $scope.safeApply()
 
             getNext(false)
-          }, (initial ? 0 : $scope.wait_time.val * 1000))
+          }
+
+          timeout_next = setTimeout(show_next, (initial ? 0 : $scope.wait_time.val * 1000))
         } else {
           $.notify("No images found! Try a less restrictive era / category", "error");
         }
@@ -127,8 +154,62 @@ artSlideshowApp.controller('HomeCtrl', function ($scope, $routeParams, $route, 
     });
   }
 
+  function getFilename(img) {
+    console.log("img", img)
+    var title = img.title || "Untitled";
+    title = title.replace(/\s+/g, '_');
+    var artist = img.artist_alpha_sort.replace(/\s+/g, '_') || "Artist_Unknown";
+    artist = artist.replace(/\s+/g, '_');
+    return artist + '-' + title + '-' + img.object_id + '.jpg'
+  }
+
+  $scope.download = function() {
+    var origImg = $scope.img_current;
+
+    var objImage = new Image();
+    objImage.setAttribute('crossOrigin', 'anonymous');
+    objImage.src = 'https://cors-anywhere.herokuapp.com/' + $scope.img_current['url_jpeg'];
+
+    objImage.addEventListener('load', function() {
+
+      var canvas = document.createElement("canvas");
+      canvas.width = objImage.width;
+      canvas.height = objImage.height;
+
+      var ctx = canvas.getContext("2d");
+      ctx.drawImage(objImage, 0, 0);
+
+      var blob = canvas.toBlob(function(blob) {
+        saveAs(blob, getFilename(origImg));
+      }, 'image/jpeg')
+
+
+    }, false);
+  }
+
+  window.tab_is_active = true;
+
   function init() {
     getNext(true)
+
+    $(window).on("blur focus", function(e) {
+      var prevType = $(this).data("prevType");
+
+      if (prevType != e.type) {   //  reduce double fire issues
+          switch (e.type) {
+            case "blur":
+              window.tab_is_active = false;
+              console.log("BLUR")
+              break;
+            case "focus":
+              window.tab_is_active = true;
+              console.log("FOCUS")
+              break;
+          }
+      }
+
+      $(this).data("prevType", e.type);
+    })
   }
 
 

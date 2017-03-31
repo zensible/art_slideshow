@@ -1,5 +1,5 @@
 
-var artSlideshowApp = angular.module('artSlideshowApp', ['ngResource', 'ngRoute']);
+var artSlideshowApp = angular.module('artSlideshowApp', ['ngResource', 'ngRoute', 'ngSanitize']);
 
 
 artSlideshowApp.directive("ngMobileClick", [function () {

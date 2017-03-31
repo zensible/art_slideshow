@@ -46,6 +46,7 @@ class CreateImageEntries < ActiveRecord::Migration[5.0]
       t.string :repository
       t.integer :downloaded, :default => 0
       t.text :met_html, :limit => 16.megabytes - 1
+      t.text :full_description, :limit => 65535
       t.string :md5
       t.integer :width
       t.integer :height

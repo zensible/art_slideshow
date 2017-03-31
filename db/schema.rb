@@ -56,6 +56,14 @@ ActiveRecord::Schema.define(version: 20170311202443) do
     t.string  "link_resource"
     t.string  "metadata_date"
     t.string  "repository"
+    t.integer "downloaded"
+    t.text "met_html", :limit => 16.megabytes - 1
+    t.text "full_description", :limit => 65535
+    t.string "md5"
+    t.integer "width"
+    t.integer "height"
+    t.integer "bytes"
+    t.integer "host_me"
   end
 
 end

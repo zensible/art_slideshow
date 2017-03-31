@@ -19,3 +19,4 @@ end
 
 puts "\n\nSuccess! You may access the slideshow at this address on the local network:\n\n#{$http_address_local}\n\n"
 
+$redis.flushall
