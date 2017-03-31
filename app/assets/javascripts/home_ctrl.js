@@ -7,11 +7,21 @@ artSlideshowApp.controller('HomeCtrl', function ($scope, $routeParams, $route, 
   // If false, show the loading indicator. If true, show the UI
   $scope.loaded = false;
 
+  $scope.paused = false;
+
   $scope.categories = window.categories;
   $scope.current_category = $scope.categories[ parseInt(Cookies.get('current_category') || 0) ];
 
   $scope.wait_times = [ { caption: "10s", val: 10 }, { caption: "20s", val: 20 }, { caption: "30s", val: 30 }, { caption: "1m", val: 60 }, { caption: "2m", val: 60*2 }, { caption: "5m", val: 60*5 }, { caption: "10m", val: 60*10 }, { caption: "30m", val: 60*30 }, { caption: "1hr", val: 60*60 } ]
   $scope.wait_time = $scope.wait_times[ parseInt(Cookies.get('wait_times') || 0) ];
+
+  if (!Cookies.get('help_message')) {
+    Cookies.set('help_message', 0)
+  }
+  if (parseInt(Cookies.get('help_message')) < 3) {
+    Cookies.set('help_message', parseInt(Cookies.get('help_message')) + 1)
+    $.notify("Click the image to see settings", "info");
+  }
 
   $scope.eras = [
     { caption: "ALL", val: "ALL" },
@@ -47,7 +57,21 @@ artSlideshowApp.controller('HomeCtrl', function ($scope, $routeParams, $route, 
     if (parts.length == 2) return parts.pop().split(";").shift();
   }
 
-  var ui_showing = false;
+  $scope.ui_showing = false;
+  var ui_timeout = null;
+  $scope.show_ui_go = function() {
+    $scope.ui_showing = true;
+    $('#ui-wait, #ui-category').fadeIn(250)
+    clearTimeout(ui_timeout)
+    ui_timeout = setTimeout(function() {
+      $('#ui-wait, #ui-category').fadeOut(500)
+      setTimeout(function() {
+        $scope.ui_showing = false;
+        $scope.safeApply()
+      }, 500)
+    }, 10*1000)
+  }
+
   $scope.toggle_ui = function() {
     //$('#description').hide()
     if (ui_showing) {
@@ -67,6 +91,14 @@ artSlideshowApp.controller('HomeCtrl', function ($scope, $routeParams, $route, 
       $('#description').fadeIn(250)
     }
     info_showing = !info_showing
+  }
+
+  $scope.play = function() {
+    $scope.paused = false;
+  }
+
+  $scope.pause = function() {
+    $scope.paused = true;
   }
 
   $scope.select_time = function(time) {
@@ -121,8 +153,8 @@ artSlideshowApp.controller('HomeCtrl', function ($scope, $routeParams, $route, 
           function show_next() {
             clearTimeout(timeout_next)
 
-            if (!window.tab_is_active) {
-              timeout_next = setTimeout(show_next, (initial ? 0 : $scope.wait_time.val * 1000))
+            if (!window.tab_is_active || $scope.paused) {
+              timeout_next = setTimeout(show_next, (initial ? 0 : 5 * 1000))
               return;
             }
 
@@ -158,13 +190,17 @@ artSlideshowApp.controller('HomeCtrl', function ($scope, $routeParams, $route, 
     console.log("img", img)
     var title = img.title || "Untitled";
     title = title.replace(/\s+/g, '_');
-    var artist = img.artist_alpha_sort.replace(/\s+/g, '_') || "Artist_Unknown";
+    var artist = img.artist_alpha_sort || "Artist_Unknown";
     artist = artist.replace(/\s+/g, '_');
     return artist + '-' + title + '-' + img.object_id + '.jpg'
   }
 
+  $scope.num_downloading = 0;
+
   $scope.download = function() {
     var origImg = $scope.img_current;
+
+    $scope.num_downloading += 1;
 
     var objImage = new Image();
     objImage.setAttribute('crossOrigin', 'anonymous');
@@ -180,6 +216,8 @@ artSlideshowApp.controller('HomeCtrl', function ($scope, $routeParams, $route, 
       ctx.drawImage(objImage, 0, 0);
 
       var blob = canvas.toBlob(function(blob) {
+        $scope.num_downloading -= 1;
+        $scope.safeApply()
         saveAs(blob, getFilename(origImg));
       }, 'image/jpeg')
 
@@ -189,10 +227,17 @@ artSlideshowApp.controller('HomeCtrl', function ($scope, $routeParams, $route, 
 
   window.tab_is_active = true;
 
+  $scope.allow_inactive = false;  // get from localstorage
+
   function init() {
     getNext(true)
 
     $(window).on("blur focus", function(e) {
+      if ($scope.allow_inactive) {
+        window.tab_is_active = true;
+        return;
+      }
+
       var prevType = $(this).data("prevType");
 
       if (prevType != e.type) {   //  reduce double fire issues
