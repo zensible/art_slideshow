@@ -17,6 +17,7 @@ gem 'coffee-rails', '~> 4.2'
 gem 'haml'
 gem 'fastimage_resize' # May need to: brew install gd
 gem 'aws-sdk', '~> 2'
+gem 'ngannotate-rails'
 
 gem 'nokogiri'
 
