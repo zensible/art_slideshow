@@ -1,7 +1,7 @@
 !!!
 %html{"ng-app" => "artSlideshowApp"}
   %head
-    %title Art Slideshow
+    %title= @pagename
     = csrf_meta_tags
     = stylesheet_link_tag    '/bootstrap/css/bootstrap.min.css', media: 'all'
     = stylesheet_link_tag    'application', media: 'all'
