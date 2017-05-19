@@ -56,7 +56,7 @@
             ({{img_current.object_end_date}})
 
         %td#medium.ellipsis
-          %a.icon{ "ng-click" => "pause()", "ng-mobile-click" => "pause()", "ng-if" => "!paused" }<
+          %a.icon{ "ng-mobile-click" => "pause()", "ng-if" => "!paused" }<
             %img.hand{ :src => "/play_24.png" }
           %a.icon{ "ng-click" => "play()", "ng-mobile-click" => "play()", "ng-if" => "paused" }<
             %img.hand{ :src => "/pause_24.png?x=3" }

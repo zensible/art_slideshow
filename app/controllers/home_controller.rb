@@ -1,16 +1,7 @@
 require 'digest'
 
 class HomeController < ApplicationController
-  before_filter :get_id
-
-  def get_id
-    md5 = Digest::MD5.new
-    if cookies["browser-id"].nil?
-      cookies["browser-id"] = rand(100000000).to_s
-    end
-    @id = cookies["browser-id"]
-  end
-
+ 
   # Renders a blank page with the application.html.haml layout. Its ng-app and ng-controller attributes bootstrap the application and call template, below
   def index
     sql = ""

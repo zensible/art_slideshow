@@ -178,7 +178,7 @@ artSlideshowApp.controller('HomeCtrl', function ($scope, $routeParams, $route, 
         }
       },
       error: function(xhr, status, err) {
-        $.notify("Could not contact the Met's servers. Trying again in 2 minutes.", "error");
+        $.notify("Could not contact the server. Trying again in a minite or two.", "error");
         setTimeout(function() {
           getNext(true);
         }, 60*2*1000)
